@@ -86,8 +86,6 @@ function CheckoutInner() {
   const pointValueUsd = points * 0.0001;
   const pointCapUsd = afterPromo * 0.2;
   const creditDiscount = useCreditsDiscount ? Math.min(pointValueUsd, pointCapUsd) : 0;
-  const creditsToSpend = useCreditsDiscount ? Math.ceil(creditDiscount / 0.0001) : 0;
-
   const total = Math.max(0, afterPromo - creditDiscount);
   const totalSaved = basePrice - total;
 
