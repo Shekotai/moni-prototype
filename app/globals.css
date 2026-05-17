@@ -2,26 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* ─── Hardcoded base styles — never rely solely on Tailwind classes ─── */
+html,
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #0d0d0d !important;
+  color: #ffffff;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* ─── CSS variables (used for direct style="" attributes and inline CSS) ─── */
+:root {
+  --c-bg-base:       #0d0d0d;
+  --c-bg-card:       #1a1a1a;
+  --c-bg-card-hover: #222222;
+  --c-border:        #2a2a2a;
+  --c-border-light:  #333333;
+  --c-accent:        #7c5cf5;
+  --c-accent-hover:  #9370ff;
+  --c-green:         #3bbe82;
+  --c-yellow:        #f0b428;
+  --c-red:           #e05555;
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar        { width: 5px; }
+::-webkit-scrollbar-track  { background: #0d0d0d; }
+::-webkit-scrollbar-thumb  { background: #333333; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #555555; }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+  .text-balance { text-wrap: balance; }
 }
