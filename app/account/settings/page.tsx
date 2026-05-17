@@ -107,7 +107,7 @@ export default function SettingsPage() {
   const [profiles, setProfiles] = useState<TradingProfile[]>(makeProfiles());
   const [activeProfile, setActiveProfile] = useState(0);
   const [quickBuyAmount, setQuickBuyAmount] = useState("0.5");
-  const [quickBuyProfile, setQuickBuyProfile] = useState(0);
+  const [quickBuyProfile] = useState(0);
   const [integrations, setIntegrations] = useState<Record<string, boolean>>({
     twitter: true, axiom: true, padre: true, dexscreener: true,
   });
