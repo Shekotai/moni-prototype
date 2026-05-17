@@ -9,33 +9,31 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
       colors: {
-        /* Backgrounds — plain hex so Tailwind JIT generates them correctly */
-        "bg-base":       "#0d0d0d",
-        "bg-card":       "#1a1a1a",
-        "bg-card-hover": "#222222",
+        "bg-base":       "#0a0a0a",
+        "bg-card":       "#111111",
+        "bg-card-hover": "#181818",
 
-        /* Borders */
-        "border-default": "#2a2a2a",
-        "border-light":   "#333333",
+        "border-default": "#222222",
+        "border-light":   "#2e2e2e",
 
-        /* Accent — hex lets Tailwind handle opacity modifiers automatically
-           e.g. bg-accent/10 → rgb(124 92 245 / 0.1) */
         accent: {
           DEFAULT: "#7c5cf5",
           hover:   "#9370ff",
         },
 
-        /* Status colors — hex for the same reason */
         "clr-green":  "#3bbe82",
         "clr-yellow": "#f0b428",
         "clr-red":    "#e05555",
 
-        /* Text */
-        "text-primary":   "#ffffff",
-        "text-secondary": "#aaaaaa",
-        "text-muted":     "#555555",
+        "text-primary":   "#f0f0f0",
+        "text-secondary": "#888888",
+        "text-muted":     "#444444",
       },
+
     },
   },
   plugins: [],

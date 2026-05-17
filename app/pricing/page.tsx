@@ -3,6 +3,7 @@
 import { useAuth } from "@/context/AuthContext";
 import ProgressBlock from "@/components/ProgressBlock";
 import PlanCards from "@/components/PlanCards";
+import SubscriptionCreditsCard from "@/components/SubscriptionCreditsCard";
 
 export default function PricingPage() {
   const { isLoggedIn, user } = useAuth();
@@ -15,12 +16,19 @@ export default function PricingPage() {
         <p className="text-text-secondary">Trade to unlock — earn discounts on every SOL you trade</p>
       </div>
 
-      <div className="mb-10">
-        <ProgressBlock
-          tradedSol={tradedSol}
-          isAuthenticated={isLoggedIn}
-          variant="pricing"
-        />
+      <div className={`grid grid-cols-1 gap-4 mb-10 ${isLoggedIn ? "lg:grid-cols-3" : ""}`}>
+        <div className={isLoggedIn ? "lg:col-span-2" : ""}>
+          <ProgressBlock
+            tradedSol={tradedSol}
+            isAuthenticated={isLoggedIn}
+            variant="pricing"
+          />
+        </div>
+        {isLoggedIn && (
+          <div className="lg:col-span-1">
+            <SubscriptionCreditsCard />
+          </div>
+        )}
       </div>
 
       <PlanCards tradedSol={tradedSol} />

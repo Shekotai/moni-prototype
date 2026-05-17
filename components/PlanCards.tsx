@@ -53,8 +53,9 @@ interface PlanCardsProps {
 }
 
 export default function PlanCards({ tradedSol }: PlanCardsProps) {
-  const { isLoggedIn, credits } = useAuth();
+  const { isLoggedIn, points, user } = useAuth();
   const router = useRouter();
+  const currentPlanKey = user?.plan?.toLowerCase() ?? null;
 
   const handleBuy = (plan: Plan) => {
     if (plan.priceUsd === 0) return;
@@ -72,32 +73,41 @@ export default function PlanCards({ tradedSol }: PlanCardsProps) {
         const tradingDiscountPct = plan.solRequired > 0
           ? Math.min(100, Math.round((tradedSol / plan.solRequired) * 100))
           : 0;
-        const creditValueUsd = credits * 0.01;
-        const creditCapUsd = plan.priceUsd * 0.2;
-        const maxCreditDiscount = Math.min(creditValueUsd, creditCapUsd);
+        // 100 points = $0.01, capped at 20% of plan price
+        const pointValueUsd = points * 0.0001;
+        const pointCapUsd = plan.priceUsd * 0.2;
+        const maxPointDiscount = Math.min(pointValueUsd, pointCapUsd);
         const isFree = plan.priceUsd === 0;
+        const isCurrent = isLoggedIn && currentPlanKey === plan.planKey;
 
         return (
           <div
             key={plan.name}
-            className={`relative flex flex-col rounded-2xl border p-6 transition-colors ${
-              plan.highlighted
-                ? "border-accent bg-accent/5"
+            className={`relative flex flex-col rounded-xl border p-6 transition-colors ${
+              isCurrent
+                ? "border-accent bg-accent/5 ring-1 ring-accent/30"
+                : plan.highlighted
+                ? "border-accent/40 bg-accent/5"
                 : "border-border-default bg-bg-card hover:border-border-light"
             }`}
           >
-            {plan.badge && (
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-accent rounded-full text-white text-xs font-semibold">
+            {/* Current plan badge takes priority over Popular */}
+            {isCurrent ? (
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-accent rounded-full text-white text-xs font-semibold whitespace-nowrap">
+                Current plan
+              </span>
+            ) : plan.badge ? (
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-bg-card-hover border border-border-light rounded-full text-text-secondary text-xs font-semibold">
                 {plan.badge}
               </span>
-            )}
+            ) : null}
 
             <div className="flex items-start justify-between mb-3">
               <div>
                 <h3 className="text-text-primary font-semibold text-lg">{plan.name}</h3>
                 <p className="text-text-muted text-xs mt-0.5">{plan.description}</p>
               </div>
-              {locked && <Lock size={15} className="text-text-muted mt-1 shrink-0" />}
+              {locked && !isCurrent && <Lock size={15} className="text-text-muted mt-1 shrink-0" />}
             </div>
 
             {/* Price */}
@@ -118,13 +128,15 @@ export default function PlanCards({ tradedSol }: PlanCardsProps) {
                 }`}>
                   <span>📊 Trading discount</span>
                   <span className="font-semibold">
-                    {tradingDiscountPct > 0 ? `−${tradingDiscountPct}%` : `0%`}
+                    {tradingDiscountPct > 0
+                      ? `−$${(plan.priceUsd * tradingDiscountPct / 100).toFixed(2)}`
+                      : `$0.00`}
                   </span>
                 </div>
-                {credits > 0 && (
+                {points > 0 && (
                   <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs bg-accent/5 border border-accent/20 text-text-secondary">
-                    <span>🪙 Credits</span>
-                    <span className="font-semibold text-accent">up to −${maxCreditDiscount.toFixed(2)}</span>
+                    <span>✦ Points</span>
+                    <span className="font-semibold text-accent">up to −${maxPointDiscount.toFixed(2)}</span>
                   </div>
                 )}
               </div>
@@ -133,23 +145,28 @@ export default function PlanCards({ tradedSol }: PlanCardsProps) {
             <ul className="space-y-1.5 flex-1 mb-5">
               {plan.features.map((f) => (
                 <li key={f} className="flex items-center gap-2 text-sm text-text-secondary">
-                  <Check size={12} className="text-clr-green shrink-0" />
+                  <Check size={12} className="text-accent shrink-0" />
                   {f}
                 </li>
               ))}
             </ul>
 
             <button
-              onClick={() => handleBuy(plan)}
-              className={`w-full py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                isFree
-                  ? "bg-bg-card-hover border border-border-default text-text-primary hover:bg-bg-card-hover"
+              onClick={() => !isCurrent && handleBuy(plan)}
+              disabled={isCurrent}
+              className={`w-full py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                isCurrent
+                  ? "bg-accent/10 border border-accent/30 text-accent cursor-default"
+                  : isFree
+                  ? "bg-bg-card-hover border border-border-default text-text-primary hover:border-border-light"
                   : plan.highlighted
                   ? "bg-accent hover:bg-accent-hover text-white"
                   : "bg-bg-card-hover border border-border-default text-text-primary hover:border-border-light"
               }`}
             >
-              {isFree
+              {isCurrent
+                ? "Your current plan"
+                : isFree
                 ? "Get started"
                 : isLoggedIn
                 ? "Buy now"

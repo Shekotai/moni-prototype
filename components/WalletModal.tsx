@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { X, Copy, Check, ChevronDown, AlertCircle, QrCode, Zap } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { X, Copy, Check, ChevronDown, AlertCircle, QrCode, Zap, Unplug, Wallet } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 interface WalletModalProps {
@@ -33,7 +33,15 @@ const TOKEN_LABEL: Record<Token, string> = {
   USDT: "Tether",
 };
 
-const WALLET_ADDRESS = "EcSsij...xx9DaK";
+const SAVED_WALLETS = [
+  "EcSsijXx9DaK3mR7vQpL2nFtWbYuAoGs",
+  "7Bk2mFpRsT9nVwXdYeJhUaCqLzNiObPc",
+  "3HdKuGnWrMvEsSjTxAyPlQoZcBfIiRmN",
+];
+
+function shorten(addr: string) {
+  return addr.slice(0, 6) + "..." + addr.slice(-4);
+}
 
 export default function WalletModal({ amountUsd, billing, onClose, onSuccess }: WalletModalProps) {
   const { user, connectedWallet } = useAuth();
@@ -41,18 +49,30 @@ export default function WalletModal({ amountUsd, billing, onClose, onSuccess }: 
   const [token, setToken] = useState<Token>("USDC");
   const [showNetworkDrop, setShowNetworkDrop] = useState(false);
   const [showTokenDrop, setShowTokenDrop] = useState(false);
+  const [showWalletDrop, setShowWalletDrop] = useState(false);
   const [email, setEmail] = useState(user?.email ?? "");
   const [copied, setCopied] = useState(false);
   const [paying, setPaying] = useState(false);
+  const [isConnected, setIsConnected] = useState(!!connectedWallet);
+  const [activeWallet, setActiveWallet] = useState(connectedWallet ?? SAVED_WALLETS[0]);
+
+  const walletDropRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (walletDropRef.current && !walletDropRef.current.contains(e.target as Node)) {
+        setShowWalletDrop(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   const notEnoughFunds = token !== "USDC" && token !== "USDT";
   const billingLabel = billing === "yearly" ? "PER YEAR" : "PER MONTH";
-  const displayAddress = connectedWallet
-    ? connectedWallet.slice(0, 6) + "..." + connectedWallet.slice(-4)
-    : WALLET_ADDRESS;
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(connectedWallet ?? "EcSsijxxxxxx9DaK");
+    navigator.clipboard.writeText(activeWallet);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -69,19 +89,30 @@ export default function WalletModal({ amountUsd, billing, onClose, onSuccess }: 
     setShowNetworkDrop(false);
   };
 
+  const handleSelectWallet = (addr: string) => {
+    setActiveWallet(addr);
+    setIsConnected(true);
+    setShowWalletDrop(false);
+  };
+
+  const handleDisconnect = () => {
+    setIsConnected(false);
+    setShowWalletDrop(false);
+  };
+
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-bg-card border border-border-default rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
+      <div className="bg-bg-card border border-border-default rounded-xl w-full max-w-sm shadow-2xl overflow-hidden">
 
         {/* Wallet status bar */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border-default bg-bg-base">
           <div className="flex items-center gap-2">
-            {connectedWallet ? (
+            {isConnected ? (
               <>
-                <div className="w-5 h-5 rounded-full border-2 border-clr-green flex items-center justify-center">
-                  <Check size={10} className="text-clr-green" strokeWidth={3} />
+                <div className="w-5 h-5 rounded-full border-2 border-accent flex items-center justify-center">
+                  <Check size={10} className="text-accent" strokeWidth={3} />
                 </div>
-                <span className="text-clr-green text-xs font-medium">Connected</span>
+                <span className="text-accent text-xs font-medium">Connected</span>
               </>
             ) : (
               <>
@@ -93,14 +124,56 @@ export default function WalletModal({ amountUsd, billing, onClose, onSuccess }: 
             )}
           </div>
           <div className="flex items-center gap-2">
-            {connectedWallet && (
-              <>
-                <span className="text-text-secondary text-xs font-mono">{displayAddress}</span>
-                <button onClick={handleCopy} className="text-text-muted hover:text-text-secondary transition-colors" title="Copy address">
-                  {copied ? <Check size={12} className="text-clr-green" /> : <Copy size={12} />}
-                </button>
-              </>
-            )}
+            {/* Wallet dropdown trigger */}
+            <div className="relative" ref={walletDropRef}>
+              <button
+                onClick={() => { setShowWalletDrop((v) => !v); setShowNetworkDrop(false); setShowTokenDrop(false); }}
+                className="flex items-center gap-1.5 text-text-secondary hover:text-text-primary transition-colors"
+              >
+                <span className="text-xs font-mono">
+                  {isConnected ? shorten(activeWallet) : "Select wallet"}
+                </span>
+                {isConnected && (
+                  <button onClick={(e) => { e.stopPropagation(); handleCopy(); }} className="text-text-muted hover:text-text-secondary transition-colors" title="Copy address">
+                    {copied ? <Check size={11} className="text-accent" /> : <Copy size={11} />}
+                  </button>
+                )}
+                <ChevronDown size={12} className={`text-text-muted transition-transform ${showWalletDrop ? "rotate-180" : ""}`} />
+              </button>
+
+              {showWalletDrop && (
+                <div className="absolute right-0 top-full mt-2 w-64 bg-bg-card border border-border-default rounded-xl shadow-2xl z-20 overflow-hidden">
+                  <p className="text-text-muted text-[10px] uppercase tracking-widest px-3 pt-3 pb-1.5">Saved wallets</p>
+                  {SAVED_WALLETS.map((addr) => (
+                    <button
+                      key={addr}
+                      onClick={() => handleSelectWallet(addr)}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-colors ${
+                        isConnected && activeWallet === addr
+                          ? "text-text-primary bg-accent/5"
+                          : "text-text-secondary hover:text-text-primary hover:bg-bg-card-hover"
+                      }`}
+                    >
+                      <Wallet size={13} className={isConnected && activeWallet === addr ? "text-accent" : "text-text-muted"} />
+                      <span className="font-mono flex-1 text-left text-xs">{shorten(addr)}</span>
+                      {isConnected && activeWallet === addr && (
+                        <span className="text-[10px] text-accent font-medium">active</span>
+                      )}
+                    </button>
+                  ))}
+                  <div className="border-t border-border-default mt-1">
+                    <button
+                      onClick={handleDisconnect}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 text-clr-red hover:bg-clr-red/5 text-sm transition-colors"
+                    >
+                      <Unplug size={13} />
+                      Disconnect
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <button onClick={onClose} className="text-text-muted hover:text-text-secondary ml-0.5 transition-colors">
               <X size={14} />
             </button>
@@ -125,7 +198,7 @@ export default function WalletModal({ amountUsd, billing, onClose, onSuccess }: 
             <div className="relative">
               <button
                 onClick={() => { setShowNetworkDrop((v) => !v); setShowTokenDrop(false); }}
-                className="w-full flex items-center justify-between px-4 py-3 bg-bg-base border border-border-default rounded-xl text-text-primary text-sm hover:border-border-light transition-colors"
+                className="w-full flex items-center justify-between px-4 py-3 bg-bg-base border border-border-default rounded-lg text-text-primary text-sm hover:border-border-light transition-colors"
               >
                 <div className="flex items-center gap-2">
                   <span>{network === "SOL" ? "◎" : "Ξ"}</span>
@@ -134,7 +207,7 @@ export default function WalletModal({ amountUsd, billing, onClose, onSuccess }: 
                 <ChevronDown size={14} className="text-text-muted" />
               </button>
               {showNetworkDrop && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-bg-card border border-border-default rounded-xl shadow-xl py-1 z-10">
+                <div className="absolute top-full left-0 right-0 mt-1 bg-bg-card border border-border-default rounded-lg shadow-xl py-1 z-10">
                   {(["SOL", "ETH"] as Network[]).map((n) => (
                     <button key={n} onClick={() => handleNetworkChange(n)}
                       className="w-full flex items-center gap-2 px-4 py-2.5 text-text-secondary hover:text-text-primary hover:bg-bg-card-hover text-sm transition-colors">
@@ -153,7 +226,7 @@ export default function WalletModal({ amountUsd, billing, onClose, onSuccess }: 
             <div className="relative">
               <button
                 onClick={() => { setShowTokenDrop((v) => !v); setShowNetworkDrop(false); }}
-                className="w-full flex items-center justify-between px-4 py-3 bg-bg-base border border-border-default rounded-xl text-text-primary text-sm hover:border-border-light transition-colors"
+                className="w-full flex items-center justify-between px-4 py-3 bg-bg-base border border-border-default rounded-lg text-text-primary text-sm hover:border-border-light transition-colors"
               >
                 <div className="flex items-center gap-2">
                   <span>{TOKEN_ICON[token]}</span>
@@ -162,7 +235,7 @@ export default function WalletModal({ amountUsd, billing, onClose, onSuccess }: 
                 <ChevronDown size={14} className="text-text-muted" />
               </button>
               {showTokenDrop && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-bg-card border border-border-default rounded-xl shadow-xl py-1 z-10">
+                <div className="absolute top-full left-0 right-0 mt-1 bg-bg-card border border-border-default rounded-lg shadow-xl py-1 z-10">
                   {TOKENS[network].map((t) => (
                     <button key={t} onClick={() => { setToken(t); setShowTokenDrop(false); }}
                       className="w-full flex items-center gap-2 px-4 py-2.5 text-text-secondary hover:text-text-primary hover:bg-bg-card-hover text-sm transition-colors">
@@ -197,7 +270,7 @@ export default function WalletModal({ amountUsd, billing, onClose, onSuccess }: 
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-bg-base border border-border-default rounded-xl px-4 py-2.5 text-text-primary text-sm focus:outline-none focus:border-accent transition-colors"
+                className="w-full bg-bg-base border border-border-default rounded-lg px-4 py-2.5 text-text-primary text-sm focus:outline-none focus:border-accent transition-colors"
                 placeholder="your@email.com"
               />
             </div>
@@ -215,7 +288,7 @@ export default function WalletModal({ amountUsd, billing, onClose, onSuccess }: 
           <button
             onClick={handlePay}
             disabled={notEnoughFunds || !email.trim() || paying}
-            className="w-full py-3.5 rounded-xl text-sm font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-bg-card-hover border border-border-default text-text-primary hover:border-border-light disabled:hover:border-border-default"
+            className="w-full py-3.5 rounded-lg text-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-accent hover:bg-accent-hover text-white"
           >
             {paying ? "Processing..." : "Pay Now"}
           </button>

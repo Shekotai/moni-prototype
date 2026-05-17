@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Trash2, Plus, Zap } from "lucide-react";
+import Link from "next/link";
+import { Copy, Trash2, Plus, Zap, Users, History, Wallet, Tag, BarChart2, Brain, TrendingUp, Sparkles, Lock } from "lucide-react";
 import AccountGuard from "@/components/AccountGuard";
 import { useAuth } from "@/context/AuthContext";
 
@@ -12,7 +13,8 @@ interface ApiKey {
 }
 
 export default function ApiPage() {
-  const { credits, maxCredits, spendCredits, addCredits } = useAuth();
+  const { credits, maxCredits, spendCredits, addCredits, user } = useAuth();
+  const isPro = user?.plan === "PRO";
   const [keys, setKeys] = useState<ApiKey[]>([]);
   const [copied, setCopied] = useState<string | null>(null);
   const [testResult, setTestResult] = useState<string | null>(null);
@@ -58,9 +60,45 @@ export default function ApiPage() {
       <div className="max-w-4xl px-8 py-10">
         <h1 className="text-2xl font-bold text-text-primary mb-8">API</h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Pro-only gate */}
+        {!isPro && (
+          <div className="mb-6 flex items-center gap-4 px-5 py-4 bg-accent/5 border border-accent/20 rounded-xl">
+            <div className="w-10 h-10 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center shrink-0">
+              <Lock size={18} className="text-accent" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-text-primary font-semibold text-sm">API access requires Pro</p>
+              <p className="text-text-muted text-xs mt-0.5">Unlock API keys, full endpoint access, and unlimited requests.</p>
+            </div>
+            <Link
+              href="/pricing/checkout?plan=pro"
+              className="shrink-0 px-4 py-2 bg-accent hover:bg-accent-hover rounded-lg text-white text-xs font-semibold transition-colors"
+            >
+              Upgrade to Pro
+            </Link>
+          </div>
+        )}
+
+        <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${!isPro ? "relative" : ""}`}>
+          {!isPro && (
+            <div className="absolute inset-0 z-10 rounded-xl backdrop-blur-[3px] bg-bg-base/40 flex items-center justify-center">
+              <div className="text-center">
+                <div className="w-14 h-14 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto mb-3">
+                  <Lock size={24} className="text-accent" />
+                </div>
+                <p className="text-text-primary font-semibold mb-1">Pro plan required</p>
+                <p className="text-text-muted text-sm mb-4">API access is available on the Pro plan only.</p>
+                <Link
+                  href="/pricing/checkout?plan=pro"
+                  className="inline-block px-6 py-2.5 bg-accent hover:bg-accent-hover rounded-lg text-white text-sm font-semibold transition-colors"
+                >
+                  Upgrade to Pro ⚡
+                </Link>
+              </div>
+            </div>
+          )}
           {/* API Keys */}
-          <div className="bg-bg-card border border-border-default rounded-2xl p-6">
+          <div className="bg-bg-card border border-border-default rounded-xl p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-text-primary font-semibold">API Keys</h2>
               <button
@@ -125,13 +163,13 @@ export default function ApiPage() {
           </div>
 
           {/* Credits */}
-          <div className="bg-bg-card border border-border-default rounded-2xl p-6 flex flex-col">
+          <div className="bg-bg-card border border-border-default rounded-xl p-6 flex flex-col">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-lg">🪙</span>
-              <h2 className="text-text-primary font-semibold">Credits</h2>
+              <span className="text-lg">🌐</span>
+              <h2 className="text-text-primary font-semibold">API Credits</h2>
             </div>
             <p className="text-text-secondary text-sm mb-5">
-              Credits for service use
+              Credits for API calls
             </p>
 
             <div className="flex-1">
@@ -165,6 +203,49 @@ export default function ApiPage() {
                 <a href="/account/usage" className="text-accent hover:underline">Usage page</a>
               </p>
             </div>
+          </div>
+        </div>
+
+        {/* Endpoints */}
+        <div className="mt-10">
+          <div className="mb-5">
+            <p className="text-text-muted text-xs uppercase tracking-widest mb-1">Available endpoints</p>
+            <p className="text-text-secondary text-sm">Programmatic access to Moni data — connect to your tools, models and dashboards.</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {[
+              { icon: <TrendingUp size={16} />,  title: "Token Analytics",      desc: "Real-time price, volume, liquidity and on-chain metrics for any Solana token." },
+              { icon: <Wallet size={16} />,       title: "Wallet Profiler",      desc: "Full trading history, PnL, and activity breakdown for any wallet address." },
+              { icon: <Users size={16} />,        title: "Smart Followers",      desc: "Top-20 smart-money followers of any Twitter / X account." },
+              { icon: <History size={16} />,      title: "CA History",           desc: "Contracts previously mentioned by KOLs in your watchlist." },
+              { icon: <Tag size={16} />,          title: "Wallet Labels",        desc: "Request labels and tags for any wallet address." },
+              { icon: <BarChart2 size={16} />,    title: "Market Screener",      desc: "Filter tokens by volume, liquidity, age, and social signals in real time." },
+              { icon: <Brain size={16} />,        title: "AI Signals",           desc: "LLM-powered market summaries and trading signal feed." },
+              { icon: <History size={16} />,      title: "Rename History",       desc: "Past username changes for tracked Twitter accounts." },
+              { icon: <Sparkles size={16} />,     title: "More",                 desc: "Additional endpoints available on request.", accent: true },
+            ].map(({ icon, title, desc, accent }) => (
+              <div
+                key={title}
+                className={`rounded-xl border p-4 flex flex-col gap-3 transition-colors ${
+                  accent
+                    ? "border-accent/30 bg-accent/5"
+                    : "border-border-default bg-bg-card hover:border-border-light"
+                }`}
+              >
+                <div className={`w-8 h-8 rounded-lg border flex items-center justify-center shrink-0 ${
+                  accent
+                    ? "border-accent/30 bg-accent/10 text-accent"
+                    : "border-border-default bg-bg-card-hover text-text-muted"
+                }`}>
+                  {icon}
+                </div>
+                <div>
+                  <p className="text-text-primary text-sm font-medium mb-1">{title}</p>
+                  <p className="text-text-muted text-xs leading-relaxed">{desc}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

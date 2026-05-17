@@ -22,7 +22,7 @@ function ProgressBar({ percent }: { percent: number }) {
 export default function ProgressBlock({ tradedSol, isAuthenticated, variant }: ProgressBlockProps) {
   if (!isAuthenticated) {
     return (
-      <div className="bg-bg-card border border-border-default rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-6">
+      <div className="bg-bg-card border border-border-default rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6">
         <div className="flex-shrink-0 w-20 h-20 rounded-xl bg-bg-card-hover flex items-center justify-center text-4xl">
           📊
         </div>
@@ -52,7 +52,7 @@ export default function ProgressBlock({ tradedSol, isAuthenticated, variant }: P
   const title = variant === "pricing" ? "Progress to next subscription" : "Progress to next subscription";
 
   return (
-    <div className="bg-bg-card border border-border-default rounded-2xl p-6">
+    <div className="bg-bg-card border border-border-default rounded-xl p-6">
       <p className="text-text-muted text-xs uppercase tracking-widest mb-4">○ {title}</p>
 
       <div className="space-y-5">

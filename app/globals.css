@@ -2,27 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Hardcoded base styles — never rely solely on Tailwind classes ─── */
-html,
-body {
-  background-color: #0d0d0d !important;
-  color: #ffffff;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+/* ─── Base ─── */
+html, body {
+  background-color: #0a0a0a !important;
+  color: #f0f0f0;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-*, *::before, *::after {
-  box-sizing: border-box;
-}
+*, *::before, *::after { box-sizing: border-box; }
 
-/* ─── CSS variables (used for direct style="" attributes and inline CSS) ─── */
+/* ─── CSS variables ─── */
 :root {
-  --c-bg-base:       #0d0d0d;
-  --c-bg-card:       #1a1a1a;
-  --c-bg-card-hover: #222222;
-  --c-border:        #2a2a2a;
-  --c-border-light:  #333333;
+  --c-bg-base:       #0a0a0a;
+  --c-bg-card:       #111111;
+  --c-bg-card-hover: #181818;
+  --c-border:        #222222;
+  --c-border-light:  #2e2e2e;
   --c-accent:        #7c5cf5;
   --c-accent-hover:  #9370ff;
   --c-green:         #3bbe82;
@@ -31,10 +29,63 @@ body {
 }
 
 /* ─── Scrollbar ─── */
-::-webkit-scrollbar        { width: 5px; }
-::-webkit-scrollbar-track  { background: #0d0d0d; }
-::-webkit-scrollbar-thumb  { background: #333333; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #555555; }
+::-webkit-scrollbar        { width: 4px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: #2e2e2e; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #3e3e3e; }
+
+/* ─── Transitions ─── */
+button, a { transition: color 120ms ease, background-color 120ms ease, border-color 120ms ease, opacity 120ms ease; }
+input, textarea, select { transition: border-color 120ms ease; }
+
+/* ─── Focus ─── */
+:focus-visible { outline: 2px solid rgba(124, 92, 245, 0.45); outline-offset: 2px; border-radius: 4px; }
+input:focus, textarea:focus, select:focus { outline: none; }
+
+/* ─── Selection ─── */
+::selection { background: rgba(124, 92, 245, 0.25); color: #fff; }
+
+/* ─── Animations ─── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 0.7; }
+}
+
+.animate-fade-up  { animation: fade-up  0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade-in  { animation: fade-in  0.4s ease both; }
+.animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+
+/* ─── Delay utilities ─── */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+
+/* ─── Gradient radial ─── */
+.bg-radial-accent {
+  background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(124, 92, 245, 0.15) 0%, transparent 70%);
+}
+.bg-radial-accent-sm {
+  background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(124, 92, 245, 0.12) 0%, transparent 70%);
+}
+
+/* ─── Dot grid ─── */
+.dot-grid {
+  background-image: radial-gradient(circle, #2a2a2a 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* ─── Card highlight ─── */
+.card-highlight {
+  background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 60%);
+}
 
 @layer utilities {
   .text-balance { text-wrap: balance; }

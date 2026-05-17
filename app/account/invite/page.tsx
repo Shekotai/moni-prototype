@@ -62,7 +62,7 @@ export default function InvitePage() {
           {/* Left: Referral */}
           <div className="space-y-4">
             {/* Banner */}
-            <div className="bg-gradient-to-br from-accent/20 to-bg-card border border-accent/20 rounded-2xl p-6 flex items-center gap-4">
+            <div className="bg-gradient-to-br from-accent/20 to-bg-card border border-accent/20 rounded-xl p-6 flex items-center gap-4">
               <div className="text-4xl">🎁</div>
               <div>
                 <h2 className="text-text-primary font-semibold mb-0.5">Invite friends and get rewarded</h2>
@@ -71,7 +71,7 @@ export default function InvitePage() {
             </div>
 
             {/* Invite code */}
-            <div className="bg-bg-card border border-border-default rounded-2xl p-5">
+            <div className="bg-bg-card border border-border-default rounded-xl p-5">
               <label className="text-text-muted text-xs uppercase tracking-widest mb-3 block">Invite code</label>
               <div className="flex gap-2">
                 <input
@@ -89,7 +89,7 @@ export default function InvitePage() {
             </div>
 
             {/* Stats */}
-            <div className="bg-bg-card border border-border-default rounded-2xl p-5">
+            <div className="bg-bg-card border border-border-default rounded-xl p-5">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex gap-4 text-sm text-text-muted">
                   <span>Remaining <span className="text-text-primary font-medium">23</span></span>
@@ -126,7 +126,7 @@ export default function InvitePage() {
             </div>
 
             {/* Level */}
-            <div className="bg-bg-card border border-border-default rounded-2xl p-5">
+            <div className="bg-bg-card border border-border-default rounded-xl p-5">
               <div className="flex justify-between mb-3">
                 <div>
                   <div className="text-text-muted text-xs mb-0.5">≡ 0.000</div>
@@ -142,7 +142,7 @@ export default function InvitePage() {
             </div>
 
             {/* Feed */}
-            <div className="bg-bg-card border border-border-default rounded-2xl p-5">
+            <div className="bg-bg-card border border-border-default rounded-xl p-5">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-text-primary font-medium text-sm">Feed</span>
                 <button className="text-accent text-xs flex items-center gap-0.5">All <ChevronRight size={12} /></button>
@@ -166,7 +166,7 @@ export default function InvitePage() {
           {/* Right: Points + Quests */}
           <div className="space-y-4">
             {/* Points */}
-            <div className="bg-bg-card border border-border-default rounded-2xl p-5">
+            <div className="bg-bg-card border border-border-default rounded-xl p-5">
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <span className="text-text-muted text-xs uppercase tracking-widest block mb-1">Points</span>

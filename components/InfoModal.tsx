@@ -12,7 +12,7 @@ interface InfoModalProps {
 export default function InfoModal({ onClose, onProceed, proceedLabel = "Convert now" }: InfoModalProps) {
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-      <div className="bg-bg-card border border-border-default rounded-2xl w-full max-w-md shadow-2xl">
+      <div className="bg-bg-card border border-border-default rounded-xl w-full max-w-md shadow-2xl">
         <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-border-default">
           <h2 className="text-text-primary font-semibold">Points &amp; Credits — how it works</h2>
           <button onClick={onClose} className="text-text-muted hover:text-text-secondary transition-colors">

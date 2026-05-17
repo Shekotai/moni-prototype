@@ -30,8 +30,20 @@ export default function ProfilePage() {
         <h1 className="text-2xl font-bold text-text-primary mb-8">Profile</h1>
 
         <div className="space-y-4">
+          {/* Email */}
+          <div className="bg-bg-card border border-border-default rounded-xl p-5">
+            <label className="text-text-muted text-xs uppercase tracking-widest mb-3 block">Email</label>
+            <div className="flex items-center gap-3">
+              <input
+                readOnly
+                value={user?.email ?? "—"}
+                className="flex-1 bg-bg-base border border-border-default rounded-lg px-4 py-2.5 text-text-primary text-sm focus:outline-none"
+              />
+            </div>
+          </div>
+
           {/* Username */}
-          <div className="bg-bg-card border border-border-default rounded-2xl p-6">
+          <div className="bg-bg-card border border-border-default rounded-xl p-6">
             <label className="text-text-muted text-xs uppercase tracking-widest mb-3 block">Username</label>
             <div className="flex gap-3">
               <input
@@ -49,10 +61,10 @@ export default function ProfilePage() {
           </div>
 
           {/* Avatar */}
-          <div className="bg-bg-card border border-border-default rounded-2xl p-6">
+          <div className="bg-bg-card border border-border-default rounded-xl p-6">
             <label className="text-text-muted text-xs uppercase tracking-widest mb-4 block">Avatar</label>
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-bg-card-hover border border-border-default overflow-hidden flex items-center justify-center">
+              <div className="w-16 h-16 rounded-xl bg-bg-card-hover border border-border-default overflow-hidden flex items-center justify-center">
                 <img
                   src={user?.avatar ?? "/mock-avatar.png"}
                   alt="avatar"
@@ -71,7 +83,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Referral code */}
-          <div className="bg-bg-card border border-border-default rounded-2xl p-6">
+          <div className="bg-bg-card border border-border-default rounded-xl p-6">
             <label className="text-text-muted text-xs uppercase tracking-widest mb-3 block">Referral code</label>
             <div className="flex gap-2">
               <input
@@ -92,7 +104,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Plan info */}
-          <div className="bg-bg-card border border-border-default rounded-2xl p-6">
+          <div className="bg-bg-card border border-border-default rounded-xl p-6">
             <label className="text-text-muted text-xs uppercase tracking-widest mb-4 block">Subscription</label>
             <div className="flex items-center justify-between">
               <div>

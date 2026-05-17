@@ -42,11 +42,11 @@ export default function AccountBurger({ onClose }: AccountBurgerProps) {
       <nav className="py-1">
         {[
           { icon: <Settings size={14} />,           label: "Profile",  href: "/account/profile" },
-          { icon: <CreditCard size={14} />,         label: "Plans",    href: "/pricing" },
-          { icon: <Wallet size={14} />,             label: "Payment",  href: "/account/payment" },
-          { icon: <Zap size={14} />,                label: "API",      href: "/account/api" },
-          { icon: <Users size={14} />,              label: "Invite",   href: "/account/invite" },
           { icon: <BarChart2 size={14} />,          label: "Usage",    href: "/account/usage" },
+          { icon: <Users size={14} />,              label: "Invite",   href: "/account/invite" },
+          { icon: <Zap size={14} />,                label: "API",      href: "/account/api" },
+          { icon: <CreditCard size={14} />,         label: "Plans",    href: "/account/plans" },
+          { icon: <Wallet size={14} />,             label: "Payment",  href: "/account/payment" },
           { icon: <SlidersHorizontal size={14} />,  label: "Settings", href: "/account/settings" },
         ].map(({ icon, label, href }) => (
           <Link

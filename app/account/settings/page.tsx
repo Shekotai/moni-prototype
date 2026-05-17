@@ -136,7 +136,7 @@ export default function SettingsPage() {
         <div className="space-y-4">
 
           {/* ── Language ── */}
-          <section className="bg-bg-card border border-border-default rounded-2xl p-6">
+          <section className="bg-bg-card border border-border-default rounded-xl p-6">
             <h2 className="text-text-primary font-semibold text-base mb-4">Language</h2>
             <div className="flex items-center gap-2">
               {(["en", "zh"] as const).map((l) => (
@@ -156,7 +156,7 @@ export default function SettingsPage() {
           </section>
 
           {/* ── Trading ── */}
-          <section className="bg-bg-card border border-border-default rounded-2xl p-6">
+          <section className="bg-bg-card border border-border-default rounded-xl p-6">
             <div className="flex items-center gap-3 mb-5">
               <h2 className="text-text-primary font-semibold text-base">Trading</h2>
               <div className="flex items-center gap-1">
@@ -307,7 +307,7 @@ export default function SettingsPage() {
           </section>
 
           {/* ── Platform Integration ── */}
-          <section className="bg-bg-card border border-border-default rounded-2xl p-6">
+          <section className="bg-bg-card border border-border-default rounded-xl p-6">
             <h2 className="text-text-primary font-semibold text-base mb-1">Platform Integration</h2>
             <p className="text-text-muted text-xs mb-5">Optimize experience when multiple extensions are displayed simultaneously</p>
             <div className="space-y-4">

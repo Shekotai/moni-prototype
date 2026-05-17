@@ -8,7 +8,6 @@ import { useAuth } from "@/context/AuthContext";
 import AccountGuard from "@/components/AccountGuard";
 import WalletModal from "@/components/WalletModal";
 
-/* ─── Plan catalogue ─── */
 const PLANS = {
   standard: { name: "Standard", monthlyUsd: 29,  yearlyUsd: 249,  solRequired: 10  },
   pro:      { name: "PRO",      monthlyUsd: 99,  yearlyUsd: 828,  solRequired: 100 },
@@ -22,7 +21,6 @@ const VALID_PROMOS: Record<string, number> = {
   LAUNCH30: 30,
 };
 
-/* ─── Subcomponents ─── */
 function RadioRow({
   checked, onClick, label, sublabel, price,
 }: {
@@ -32,19 +30,19 @@ function RadioRow({
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl border transition-colors ${
+      className={`w-full flex items-center justify-between px-4 py-3 rounded-lg border text-left transition-colors ${
         checked
-          ? "border-clr-green bg-clr-green/5"
+          ? "border-accent bg-accent/5"
           : "border-border-default bg-bg-base hover:border-border-light"
       }`}
     >
       <div className="flex items-center gap-3">
-        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-          checked ? "border-clr-green" : "border-border-light"
+        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
+          checked ? "border-accent" : "border-border-light"
         }`}>
-          {checked && <div className="w-2.5 h-2.5 rounded-full bg-clr-green" />}
+          {checked && <div className="w-2 h-2 rounded-full bg-accent" />}
         </div>
-        <div className="text-left">
+        <div>
           <span className="text-text-primary text-sm font-medium">{label}</span>
           {sublabel && <span className="text-text-muted text-xs ml-2">{sublabel}</span>}
         </div>
@@ -55,7 +53,7 @@ function RadioRow({
 }
 
 function CheckoutInner() {
-  const { user, credits, spendCredits, upgradePlan } = useAuth();
+  const { user, points, upgradePlan } = useAuth();
   const searchParams = useSearchParams();
   const planKey = (searchParams.get("plan") ?? "standard") as PlanKey;
   const plan = PLANS[planKey] ?? PLANS.standard;
@@ -84,10 +82,11 @@ function CheckoutInner() {
   const promoDiscount = promoApplied ? afterTrading * (promoApplied.pct / 100) : 0;
   const afterPromo = afterTrading - promoDiscount;
 
-  const creditValueUsd = credits * 0.01;
-  const creditCapUsd = afterPromo * 0.2;
-  const creditDiscount = useCreditsDiscount ? Math.min(creditValueUsd, creditCapUsd) : 0;
-  const creditsToSpend = useCreditsDiscount ? Math.ceil(creditDiscount / 0.01) : 0;
+  // 100 points = $0.01, capped at 20% of plan price
+  const pointValueUsd = points * 0.0001;
+  const pointCapUsd = afterPromo * 0.2;
+  const creditDiscount = useCreditsDiscount ? Math.min(pointValueUsd, pointCapUsd) : 0;
+  const creditsToSpend = useCreditsDiscount ? Math.ceil(creditDiscount / 0.0001) : 0;
 
   const total = Math.max(0, afterPromo - creditDiscount);
   const totalSaved = basePrice - total;
@@ -104,27 +103,28 @@ function CheckoutInner() {
   };
 
   const handlePurchaseComplete = () => {
-    if (creditsToSpend > 0) spendCredits(creditsToSpend);
+    // points deduction handled server-side in production
     upgradePlan(planKey === "pro" ? "PRO" : "STANDARD");
     setShowWallet(false);
     setPurchased(true);
   };
 
+  /* ── Success ── */
   if (purchased) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center px-4">
         <div className="text-center max-w-sm">
-          <div className="w-20 h-20 rounded-full bg-clr-green/10 border border-clr-green/30 flex items-center justify-center mx-auto mb-6">
-            <Check size={36} className="text-clr-green" />
+          <div className="w-16 h-16 rounded-full bg-accent/10 border border-accent/30 flex items-center justify-center mx-auto mb-6">
+            <Check size={30} className="text-accent" strokeWidth={2.5} />
           </div>
-          <h1 className="text-2xl font-bold text-text-primary mb-2">Payment confirmed!</h1>
+          <h1 className="text-2xl font-semibold text-text-primary mb-2">Payment confirmed!</h1>
           <p className="text-text-secondary mb-1">
-            Upgraded to <span className="text-clr-green font-semibold">{plan.name}</span>
+            Upgraded to <span className="text-accent font-semibold">{plan.name}</span>
           </p>
           <p className="text-text-muted text-sm mb-8">Your new features are active immediately.</p>
           <Link
             href="/account/profile"
-            className="inline-block px-8 py-3 bg-accent hover:bg-accent-hover rounded-xl text-white font-medium transition-colors"
+            className="inline-block px-8 py-2.5 bg-accent hover:bg-accent-hover rounded-lg text-white font-medium transition-colors"
           >
             Go to Profile
           </Link>
@@ -135,25 +135,24 @@ function CheckoutInner() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
-      {/* Back */}
       <Link href="/pricing" className="inline-flex items-center gap-1.5 text-text-muted hover:text-text-secondary text-sm mb-8 transition-colors">
         <ChevronLeft size={15} /> Back to Pricing
       </Link>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-5">
 
-        {/* ── Left column ── */}
-        <div className="space-y-4">
+        {/* ── Left ── */}
+        <div className="space-y-3">
 
-          {/* Plan card */}
-          <div className="bg-bg-card border border-border-default rounded-2xl p-5">
-            <p className="text-text-muted text-xs mb-1">Plan</p>
-            <h1 className="text-text-primary text-xl font-bold">Moni {plan.name}</h1>
+          {/* Plan */}
+          <div className="bg-bg-card border border-border-default rounded-xl p-5">
+            <p className="text-text-muted text-xs uppercase tracking-widest mb-1">Plan</p>
+            <h1 className="text-text-primary text-xl font-semibold">Moni {plan.name}</h1>
           </div>
 
-          {/* Billing cycle */}
-          <div className="bg-bg-card border border-border-default rounded-2xl p-5">
-            <h2 className="text-text-primary font-semibold mb-4">Billing cycle</h2>
+          {/* Billing */}
+          <div className="bg-bg-card border border-border-default rounded-xl p-5">
+            <h2 className="text-text-primary text-sm font-semibold mb-3">Billing cycle</h2>
             <div className="space-y-2">
               <RadioRow
                 checked={billing === "monthly"}
@@ -170,25 +169,23 @@ function CheckoutInner() {
               />
             </div>
             {billing === "yearly" && annualSavings > 0 && (
-              <p className="text-clr-green text-xs mt-3">
-                Save ${annualSavings} per year compared to monthly billing
-              </p>
+              <p className="text-accent text-xs mt-3">Save ${annualSavings} per year vs monthly</p>
             )}
           </div>
 
           {/* Discounts */}
-          <div className="bg-bg-card border border-border-default rounded-2xl p-5">
-            <h2 className="text-text-primary font-semibold mb-4">Discounts</h2>
-            <div className="space-y-3">
+          <div className="bg-bg-card border border-border-default rounded-xl p-5">
+            <h2 className="text-text-primary text-sm font-semibold mb-3">Discounts</h2>
+            <div className="space-y-2">
 
-              {/* Trading discount */}
-              <div className={`flex items-start justify-between p-3 rounded-xl border ${
+              {/* Trading */}
+              <div className={`flex items-start justify-between p-3 rounded-lg border ${
                 tradingDiscountPct > 0
-                  ? "border-clr-green/20 bg-clr-green/5"
+                  ? "border-accent/20 bg-accent/5"
                   : "border-border-default bg-bg-base"
               }`}>
                 <div>
-                  <p className="text-text-secondary text-sm font-medium flex items-center gap-1.5">
+                  <p className="text-text-secondary text-sm flex items-center gap-1.5">
                     <span>📊</span> Trading volume discount
                   </p>
                   <p className="text-text-muted text-xs mt-0.5">
@@ -196,16 +193,14 @@ function CheckoutInner() {
                   </p>
                 </div>
                 <span className={`text-sm font-semibold shrink-0 ml-4 ${
-                  tradingDiscountPct > 0 ? "text-clr-green" : "text-text-muted"
+                  tradingDiscountPct > 0 ? "text-accent" : "text-text-muted"
                 }`}>
-                  {tradingDiscountPct > 0
-                    ? `−${tradingDiscountPct}% (−$${tradingDiscount.toFixed(2)})`
-                    : "0%"}
+                  {tradingDiscountPct > 0 ? `−$${tradingDiscount.toFixed(2)}` : "$0.00"}
                 </span>
               </div>
 
-              {/* Credits */}
-              <label className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${
+              {/* Points */}
+              <label className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
                 useCreditsDiscount
                   ? "border-accent/30 bg-accent/5"
                   : "border-border-default bg-bg-base hover:border-border-light"
@@ -217,11 +212,11 @@ function CheckoutInner() {
                   className="mt-0.5 w-4 h-4 accent-violet-500"
                 />
                 <div className="flex-1">
-                  <p className="text-text-secondary text-sm font-medium flex items-center gap-1.5">
-                    <span>🪙</span> Apply credits
+                  <p className="text-text-secondary text-sm flex items-center gap-1.5">
+                    <span>✦</span> Apply points
                   </p>
                   <p className="text-text-muted text-xs mt-0.5">
-                    {credits} credits available ≈ ${creditValueUsd.toFixed(2)} · max 20% off
+                    {points.toLocaleString()} points available ≈ ${pointValueUsd.toFixed(2)} · max 20% off
                   </p>
                 </div>
                 <span className={`text-sm font-semibold shrink-0 ml-4 ${
@@ -229,23 +224,23 @@ function CheckoutInner() {
                 }`}>
                   {useCreditsDiscount && creditDiscount > 0
                     ? `−$${creditDiscount.toFixed(2)}`
-                    : credits > 0 ? `up to −$${Math.min(creditValueUsd, afterPromo * 0.2).toFixed(2)}` : "0 credits"}
+                    : points > 0 ? `up to −$${Math.min(pointValueUsd, afterPromo * 0.2).toFixed(2)}` : "$0.00"}
                 </span>
               </label>
             </div>
           </div>
 
-          {/* Promo code */}
-          <div className="bg-bg-card border border-border-default rounded-2xl p-5">
+          {/* Promo */}
+          <div className="bg-bg-card border border-border-default rounded-xl p-5">
             <button
               onClick={() => setShowPromo((v) => !v)}
-              className="flex items-center gap-2 text-clr-green text-sm font-medium hover:opacity-80 transition-opacity"
+              className="flex items-center gap-2 text-text-secondary hover:text-text-primary text-sm transition-colors"
             >
-              <Tag size={14} />
+              <Tag size={13} className="text-accent" />
               {promoApplied
-                ? <span>Promo <code className="font-mono">{promoApplied.code}</code> applied — {promoApplied.pct}% off</span>
+                ? <span>Promo <code className="font-mono text-accent">{promoApplied.code}</code> — {promoApplied.pct}% off</span>
                 : "Apply promo code"}
-              <ChevronDown size={14} className={`transition-transform ${showPromo ? "rotate-180" : ""}`} />
+              <ChevronDown size={13} className={`text-text-muted transition-transform ${showPromo ? "rotate-180" : ""}`} />
             </button>
 
             {showPromo && !promoApplied && (
@@ -254,11 +249,11 @@ function CheckoutInner() {
                   value={promoInput}
                   onChange={(e) => { setPromoInput(e.target.value); setPromoError(""); }}
                   placeholder="Enter promo code"
-                  className="flex-1 bg-bg-base border border-border-default rounded-xl px-4 py-2.5 text-text-primary text-sm focus:outline-none focus:border-accent transition-colors uppercase"
+                  className="flex-1 bg-bg-base border border-border-default rounded-lg px-4 py-2.5 text-text-primary text-sm focus:outline-none focus:border-accent transition-colors uppercase"
                 />
                 <button
                   onClick={applyPromo}
-                  className="px-4 py-2.5 bg-accent hover:bg-accent-hover rounded-xl text-white text-sm font-medium transition-colors"
+                  className="px-4 py-2.5 bg-accent hover:bg-accent-hover rounded-lg text-white text-sm font-medium transition-colors"
                 >
                   Apply
                 </button>
@@ -268,74 +263,68 @@ function CheckoutInner() {
           </div>
         </div>
 
-        {/* ── Right column: Summary ── */}
+        {/* ── Right: Summary ── */}
         <div className="lg:sticky lg:top-20 self-start">
-          <div className="bg-bg-card border border-border-default rounded-2xl p-6">
-            <h2 className="text-text-primary font-bold text-xl mb-5">Summary</h2>
+          <div className="bg-bg-card border border-border-default rounded-xl p-5">
+            <h2 className="text-text-primary font-semibold mb-5">Summary</h2>
 
-            <div className="space-y-3 mb-5">
-              <div className="flex justify-between items-center">
-                <span className="text-text-secondary text-sm">
-                  {plan.name} Plan {billing === "yearly" ? "Yearly" : "Monthly"}
-                </span>
+            <div className="space-y-2.5 mb-5 text-sm">
+              <div className="flex justify-between">
+                <span className="text-text-secondary">{plan.name} · {billing === "yearly" ? "Yearly" : "Monthly"}</span>
                 <span className="text-text-primary font-medium">${basePrice.toFixed(2)}</span>
               </div>
 
               {billing === "yearly" && (
-                <div className="flex justify-between items-center">
-                  <span className="text-text-secondary text-sm">Annual savings</span>
-                  <span className="text-clr-green font-medium">−${annualSavings.toFixed(2)}</span>
+                <div className="flex justify-between">
+                  <span className="text-text-secondary">Annual savings</span>
+                  <span className="text-accent font-medium">−${annualSavings.toFixed(2)}</span>
                 </div>
               )}
 
               {tradingDiscountPct > 0 && (
-                <div className="flex justify-between items-center">
-                  <span className="text-text-secondary text-sm">Trading discount ({tradingDiscountPct}%)</span>
-                  <span className="text-clr-green font-medium">−${tradingDiscount.toFixed(2)}</span>
+                <div className="flex justify-between">
+                  <span className="text-text-secondary">Trading discount</span>
+                  <span className="text-accent font-medium">−${tradingDiscount.toFixed(2)}</span>
                 </div>
               )}
 
               {promoApplied && (
-                <div className="flex justify-between items-center">
-                  <span className="text-text-secondary text-sm">Promo ({promoApplied.pct}%)</span>
-                  <span className="text-clr-yellow font-medium">−${promoDiscount.toFixed(2)}</span>
+                <div className="flex justify-between">
+                  <span className="text-text-secondary">Promo ({promoApplied.pct}%)</span>
+                  <span className="text-accent font-medium">−${promoDiscount.toFixed(2)}</span>
                 </div>
               )}
 
               {useCreditsDiscount && creditDiscount > 0 && (
-                <div className="flex justify-between items-center">
-                  <span className="text-text-secondary text-sm">Credits ({creditsToSpend} used)</span>
+                <div className="flex justify-between">
+                  <span className="text-text-secondary">Points applied</span>
                   <span className="text-accent font-medium">−${creditDiscount.toFixed(2)}</span>
                 </div>
               )}
             </div>
 
             <div className="border-t border-border-default pt-4 mb-5">
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-text-primary font-semibold">Payable now</span>
+              <div className="flex justify-between items-center">
+                <span className="text-text-primary font-semibold">Total</span>
                 <span className="text-text-primary font-bold text-xl">${total.toFixed(2)}</span>
               </div>
               {totalSaved > 0.01 && (
-                <p className="text-clr-green text-xs text-right">You save ${totalSaved.toFixed(2)}</p>
+                <p className="text-accent text-xs text-right mt-1">You save ${totalSaved.toFixed(2)}</p>
               )}
             </div>
 
             <button
               onClick={() => setShowWallet(true)}
-              className="w-full py-3.5 bg-clr-green hover:opacity-90 rounded-xl text-bg-base font-bold text-sm transition-opacity mb-4"
+              className="w-full py-3 bg-accent hover:bg-accent-hover rounded-lg text-white font-semibold text-sm transition-colors mb-4"
             >
               Pay with crypto
             </button>
 
-            <div className="space-y-2 text-xs text-text-muted leading-relaxed">
-              <p>Your current plan will be replaced with a new one.</p>
-              <p>
-                By clicking &quot;Pay with crypto&quot;, you agree to be charged for the subscription
-                plan and comply with our{" "}
-                <a href="#" className="text-clr-green hover:underline">Terms of Services</a>.
-                You can cancel at any time, effective at the end of the billing period.
-              </p>
-            </div>
+            <p className="text-text-muted text-[11px] leading-relaxed">
+              By clicking &quot;Pay with crypto&quot;, you agree to our{" "}
+              <a href="#" className="text-accent hover:underline">Terms of Service</a>.
+              Cancel anytime before next billing period.
+            </p>
           </div>
         </div>
       </div>

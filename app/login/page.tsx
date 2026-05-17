@@ -28,7 +28,7 @@ function LoginForm() {
           <p className="text-text-secondary text-sm">Sign in to continue</p>
         </div>
 
-        <div className="bg-bg-card border border-border-default rounded-2xl p-6">
+        <div className="bg-bg-card border border-border-default rounded-xl p-6">
           <button
             onClick={handleLogin}
             className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white hover:bg-gray-100 rounded-xl text-[#1a1a1a] font-medium transition-colors"

@@ -34,7 +34,7 @@ export default function QuestCard({ title, points, tasks, allCompleted: initialA
   const allDone = initialAllCompleted || tasks.every((t) => t.completed || t.current >= t.total);
 
   return (
-    <div className={`bg-bg-card border rounded-2xl p-5 transition-colors ${claimed ? "border-clr-green/30" : "border-border-default"}`}>
+    <div className={`bg-bg-card border rounded-xl p-5 transition-colors ${claimed ? "border-clr-green/30" : "border-border-default"}`}>
       <div className="flex items-start justify-between mb-4">
         <h3 className="text-text-primary font-semibold text-sm leading-tight">{title}</h3>
         <span className="text-clr-yellow text-xs font-semibold ml-3 shrink-0">+{points} points</span>

@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Activity, Lock } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import ProgressBlock from "@/components/ProgressBlock";
 import AccountGuard from "@/components/AccountGuard";
 import ConvertFlow from "@/components/ConvertFlow";
+import SubscriptionCreditsCard from "@/components/SubscriptionCreditsCard";
 
 function UsageBar({ percent, label }: { percent: number; label: string }) {
   return (
@@ -28,6 +30,7 @@ function LivePoints() {
 
 export default function UsagePage() {
   const { isLoggedIn, user, credits, maxCredits } = useAuth();
+  const isPro = user?.plan === "PRO";
   const [showConvert, setShowConvert] = useState(false);
   const creditPct = Math.round((credits / maxCredits) * 100);
 
@@ -40,9 +43,9 @@ export default function UsagePage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
 
           {/* Usage */}
-          <div className="bg-bg-card border border-border-default rounded-2xl p-5">
+          <div className="bg-bg-card border border-border-default rounded-xl p-5">
             <div className="flex items-center gap-2 mb-4">
-              <span className="text-text-muted text-base leading-none">○</span>
+              <Activity size={16} className="text-text-muted" />
               <span className="text-text-primary font-semibold">Usage</span>
             </div>
             <div className="space-y-4">
@@ -69,13 +72,25 @@ export default function UsagePage() {
             </div>
           </div>
 
-          {/* Credits */}
-          <div className="bg-bg-card border border-border-default rounded-2xl p-5 flex flex-col">
+          {/* API Credits */}
+          <div className="relative bg-bg-card border border-border-default rounded-xl p-5 flex flex-col overflow-hidden">
+            {!isPro && (
+              <div className="absolute inset-0 z-10 backdrop-blur-[3px] bg-bg-base/50 flex flex-col items-center justify-center gap-3 rounded-xl">
+                <Lock size={20} className="text-accent" />
+                <p className="text-text-primary text-sm font-semibold">Pro only</p>
+                <Link
+                  href="/pricing/checkout?plan=pro"
+                  className="px-4 py-1.5 bg-accent hover:bg-accent-hover rounded-lg text-white text-xs font-semibold transition-colors"
+                >
+                  Upgrade to Pro
+                </Link>
+              </div>
+            )}
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-lg">🪙</span>
-              <span className="text-text-primary font-semibold">Credits</span>
+              <span className="text-lg">🌐</span>
+              <span className="text-text-primary font-semibold">API Credits</span>
             </div>
-            <p className="text-text-secondary text-sm mb-4">Credits for service use</p>
+            <p className="text-text-secondary text-sm mb-4">Credits for API calls</p>
             <div className="flex-1 flex items-end">
               <div className="w-full">
                 <div className="flex items-baseline gap-2 mb-1">
@@ -91,13 +106,13 @@ export default function UsagePage() {
                     }}
                   />
                 </div>
-                <p className="text-text-muted text-xs">API calls &amp; plan upgrades</p>
+                <p className="text-text-muted text-xs">Each API call costs 1 credit · Credits can also be applied toward plan upgrades</p>
               </div>
             </div>
           </div>
 
           {/* Points */}
-          <div className="bg-bg-card border border-border-default rounded-2xl p-5 flex flex-col">
+          <div className="bg-bg-card border border-border-default rounded-xl p-5 flex flex-col">
             <div className="flex items-center gap-2 mb-1">
               <span className="text-lg">✦</span>
               <span className="text-text-primary font-semibold">Points for quests and invites</span>
@@ -123,12 +138,19 @@ export default function UsagePage() {
           </div>
         </div>
 
-        {/* Progress block */}
-        <ProgressBlock
-          tradedSol={user?.tradedSol ?? 0}
-          isAuthenticated={isLoggedIn}
-          variant="usage"
-        />
+        {/* Progress block + Subscription Credits */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2">
+            <ProgressBlock
+              tradedSol={user?.tradedSol ?? 0}
+              isAuthenticated={isLoggedIn}
+              variant="usage"
+            />
+          </div>
+          <div className="lg:col-span-1">
+            <SubscriptionCreditsCard />
+          </div>
+        </div>
       </div>
 
       {showConvert && <ConvertFlow onClose={() => setShowConvert(false)} />}
