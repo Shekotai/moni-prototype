@@ -29,7 +29,7 @@ export default function PaymentPage() {
 
   return (
     <AccountGuard>
-      <div className="max-w-2xl mx-auto px-4 py-12">
+      <div className="max-w-3xl px-8 py-10">
         <h1 className="text-2xl font-bold text-text-primary mb-8">Payment</h1>
 
         <div className="space-y-4">
